@@ -1,24 +1,65 @@
 // Write your code here
+import {Component} from 'react'
 import './index.css'
 
-const TodoItem = props => {
-  const {eachItem, onDeleteTodo} = props
-  const {id, title} = eachItem
-  const onDelelteBtn = () => {
-    onDeleteTodo(id)
+class TodoItem extends Component {
+  state = {
+    editing: false,
+    updatedTitle: '',
   }
-  return (
-    <li>
-      <p>{title}</p>
-      <button
-        type="button"
-        className="delete-btn"
-        key={id}
-        onClick={onDelelteBtn}
+
+  handleEdit = () => {
+    const {todoDetails} = this.props
+    this.setState({editing: true, updatedTitle: todoDetails.title})
+  }
+
+  handleSave = () => {
+    const {todoDetails, toggleComplete} = this.props
+    toggleComplete(todoDetails.id)
+    this.setState({editing: false})
+  }
+
+  handleChange = e => {
+    this.setState({updatedTitle: e.target.value})
+  }
+
+  render() {
+    const {todoDetails, deleteTodo, toggleComplete} = this.props
+    const {editing, updatedTitle} = this.state
+    return (
+      <li
+        className={todoDetails.completed ? 'todo-item completed' : 'todo-item'}
       >
-        Delete
-      </button>
-    </li>
-  )
+        {editing ? (
+          <>
+            <input
+              type="text"
+              value={updatedTitle}
+              onChange={this.handleChange}
+            />
+            <button onClick={this.handleSave} type="button">
+              Save
+            </button>
+          </>
+        ) : (
+          <>
+            <input
+              type="checkbox"
+              checked={todoDetails.completed}
+              onChange={() => toggleComplete(todoDetails.id)}
+            />
+            <p className="title">{todoDetails.title}</p>
+            <button onClick={this.handleEdit} type="button">
+              Edit
+            </button>
+            <button onClick={() => deleteTodo(todoDetails.id)} type="button">
+              Delete
+            </button>
+          </>
+        )}
+      </li>
+    )
+  }
 }
+
 export default TodoItem

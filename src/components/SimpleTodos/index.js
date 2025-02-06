@@ -1,70 +1,109 @@
 import {Component} from 'react'
-
+import TodoItem from '../TodoItem'
 import './index.css'
 
-import TodoItem from '../TodoItem'
-
-const initialTodosList = [
-  {
-    id: 1,
-    title: 'Book the ticket for today evening',
-  },
-  {
-    id: 2,
-    title: 'Rent the movie for tomorrow movie night',
-  },
-  {
-    id: 3,
-    title: 'Confirm the slot for the yoga session tomorrow morning',
-  },
-  {
-    id: 4,
-    title: 'Drop the parcel at Bloomingdale',
-  },
-  {
-    id: 5,
-    title: 'Order fruits on Big Basket',
-  },
-  {
-    id: 6,
-    title: 'Fix the production issue',
-  },
-  {
-    id: 7,
-    title: 'Confirm my slot for Saturday Night',
-  },
-  {
-    id: 8,
-    title: 'Get essentials for Sunday car wash',
-  },
-]
-
-// Write your code here
-
 class SimpleTodos extends Component {
-  state = {todo: initialTodosList}
+  state = {
+    todosList: [
+      {id: 1, title: 'Book the ticket for today evening', completed: false},
+      {
+        id: 2,
+        title: 'Rent the movie for tomorrow movie night',
+        completed: false,
+      },
+      {
+        id: 3,
+        title: 'Confirm the slot for the yoga session tomorrow morning',
+        completed: false,
+      },
+      {id: 4, title: 'Drop the parcel at Bloomingdale', completed: false},
+      {id: 5, title: 'Order fruits on Big Basket', completed: false},
+      {id: 6, title: 'Fix the production issue', completed: false},
+      {id: 7, title: 'Confirm my slot for Saturday Night', completed: false},
+      {id: 8, title: 'Get essentials for Sunday car wash', completed: false},
+    ],
+    newTodoTitle: '',
+    newTodoCount: 1,
+  }
+
+  handleAddTodo = () => {
+    const {newTodoTitle} = this.state
+
+    const match = newTodoTitle.match(/(.*?)(\d+)$/)
+
+    let title = newTodoTitle
+    let count = 1
+
+    if (match) {
+      title = match[1].trim()
+      count = parseInt(match[2], 10)
+    }
+
+    const newTodos = Array.from({length: count}, (_, i) => ({
+      id: Date.now() + i,
+      title: title || `Todo ${Date.now() + i}`,
+      completed: false,
+    }))
+
+    this.setState(prevState => ({
+      todosList: [...prevState.todosList, ...newTodos],
+      newTodoTitle: '',
+    }))
+  }
+
+  handleChange = e => {
+    this.setState({[e.target.name]: e.target.value})
+  }
 
   deleteTodo = id => {
-    const {todo} = this.state
-    const filterDeleteTodo = todo.filter(itemTodo => itemTodo.id !== id)
-    this.setState({todo: filterDeleteTodo})
+    const {todosList} = this.state
+    const updatedTodoList = todosList.filter(todo => todo.id !== id)
+    this.setState({todosList: updatedTodoList})
+  }
+
+  toggleComplete = id => {
+    const {todosList} = this.state
+    const updatedTodoList = todosList.map(todo =>
+      todo.id === id ? {...todo, completed: !todo.completed} : todo,
+    )
+    this.setState({todosList: updatedTodoList})
   }
 
   render() {
-    const {todo} = this.state
+    const {todosList, newTodoTitle, newTodoCount} = this.state
     return (
-      <div className="bg_color">
-        <div className="todos_bg">
-          <h1>Simple Todos</h1>
-          <u1>
-            {todo.map(eachItem => (
+      <div className="container">
+        <div className="inner-container">
+          <h1 className="heading">Simple Todos</h1>
+          <div className="add-todo">
+            <input
+              type="text"
+              name="newTodoTitle"
+              value={newTodoTitle}
+              onChange={this.handleChange}
+              placeholder="Enter todo title"
+            />
+            <input
+              type="number"
+              name="newTodoCount"
+              value={newTodoCount}
+              onChange={this.handleChange}
+              placeholder="Enter number of todos"
+            />
+            <button onClick={this.handleAddTodo} type="button">
+              Add
+            </button>
+          </div>
+          <ul className="todos-list">
+            {todosList.map(todo => (
               <TodoItem
-                key={eachItem.id}
-                onDeleteTodo={this.deleteTodo}
-                eachItem={eachItem}
+                key={todo.id}
+                todoDetails={todo}
+                deleteTodo={this.deleteTodo}
+                toggleComplete={this.toggleComplete}
               />
             ))}
-          </u1>
+          </ul>
         </div>
       </div>
     )
